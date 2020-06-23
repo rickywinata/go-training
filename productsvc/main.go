@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -16,8 +17,7 @@ func main() {
 		func(_ context.Context, request interface{}) (interface{}, error) {
 			product := request.(Product)
 
-			// Create product.
-			fmt.Println("create product!")
+			fmt.Println("Create the product! You can store to the database here.")
 
 			return product, nil
 		},
@@ -37,6 +37,8 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Post("/products", storeHandler.ServeHTTP)
+
+	log.Println("Listening on :8080 ...")
 	http.ListenAndServe(":8080", r)
 }
 
