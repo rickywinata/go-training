@@ -1,0 +1,30 @@
+GET http://localhost:8080/greet HTTP/1.1
+
+###
+
+POST http://localhost:8080/uppercase HTTP/1.1
+
+{
+    "s": ""
+}
+
+###
+
+POST http://localhost:8080/count HTTP/1.1
+
+{
+    "s": "test"
+}
+
+###
+
+GET http://localhost:8080/greet HTTP/1.1
+
+###
+
+POST http://localhost:8080/products HTTP/1.1
+
+{
+    "name": "test123",
+    "price": 15000
+}
