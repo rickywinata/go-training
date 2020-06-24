@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	storeHandler := httptransport.NewServer(
+	createProductHandler := httptransport.NewServer(
 		// Endpoint.
 		func(_ context.Context, request interface{}) (interface{}, error) {
 			product := request.(Product)
@@ -36,7 +36,7 @@ func main() {
 	)
 
 	r := chi.NewRouter()
-	r.Post("/products", storeHandler.ServeHTTP)
+	r.Post("/products", createProductHandler.ServeHTTP)
 
 	log.Println("Listening on :8080 ...")
 	http.ListenAndServe(":8080", r)
