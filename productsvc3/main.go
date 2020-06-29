@@ -1,8 +1,6 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
 	"log"
 	"net/http"
 
@@ -27,9 +25,4 @@ func main() {
 
 	log.Println("Listening on :8080 ...")
 	http.ListenAndServe(":8080", r)
-}
-
-func encodeResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	return json.NewEncoder(w).Encode(response)
 }

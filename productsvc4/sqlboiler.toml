@@ -1,0 +1,11 @@
+output     = "./postgres/models"
+wipe       = true
+
+[psql]
+dbname = "productsvc"
+host   = "localhost"
+port   = 5432
+user   = "postgres"
+pass   = "password"
+sslmode = "disable"
+blacklist = ["goose_db_version"]
