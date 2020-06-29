@@ -1,4 +1,4 @@
-# Product Service 4 Requirements
+# Product Service 4
 
 ## Installing
 
