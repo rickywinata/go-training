@@ -31,4 +31,4 @@ POST http://localhost:8080/products HTTP/1.1
 
 ###
 
-GET http://localhost:8080/products/test HTTP/1.1
+GET http://localhost:8080/products/a HTTP/1.1

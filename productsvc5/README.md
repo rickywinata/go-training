@@ -18,7 +18,7 @@ go get github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql
 ## Create migrations
 
 ```
-# With an assumption: currently you're on `./productsvc4` directory.
+# With an assumption: currently you're on `./productsvc5` directory.
 #
 
 goose -dir ./postgres/migrations create create_table_product sql
@@ -27,7 +27,7 @@ goose -dir ./postgres/migrations create create_table_product sql
 ## Run migrations
 
 ```
-# With an assumption: currently you're on `./productsvc4` directory
+# With an assumption: currently you're on `./productsvc5` directory
 # and you already have database `productsvc` exist.
 #
 
