@@ -19,11 +19,11 @@ type AccountService interface {
 }
 
 type accountService struct {
-	accountRepo emoney.Repository
+	accountRepo emoney.AccountRepository
 }
 
 // NewAccountService creates a new account service.
-func NewAccountService(accountRepo1 emoney.Repository) AccountService {
+func NewAccountService(accountRepo1 emoney.AccountRepository) AccountService {
 	return &accountService{
 		accountRepo: accountRepo1,
 	}

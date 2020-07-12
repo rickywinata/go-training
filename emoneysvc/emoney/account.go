@@ -10,7 +10,13 @@ type Account struct {
 	Balance int    `json:"balance"`
 }
 
-// Repository is an interface for product storage functions.
-type Repository interface {
+// AccountEntry represents an entry on an account.
+type AccountEntry struct {
+	AccountID string
+	Amount    int
+}
+
+// AccountRepository is an interface for product storage functions.
+type AccountRepository interface {
 	Insert(ctx context.Context, account *Account) error
 }
