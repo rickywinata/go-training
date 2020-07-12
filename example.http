@@ -20,7 +20,9 @@ POST http://localhost:8080/count HTTP/1.1
 
 GET http://localhost:8080/greet HTTP/1.1
 
-###
+#
+#
+### Product Service
 
 POST http://localhost:8080/products HTTP/1.1
 
@@ -32,3 +34,16 @@ POST http://localhost:8080/products HTTP/1.1
 ###
 
 GET http://localhost:8080/products/a HTTP/1.1
+
+#
+#
+### E-Money Service
+
+
+POST http://localhost:8080/accounts HTTP/1.1
+
+{}
+
+###
+
+GET http://localhost:8080/accounts/db87651b-84bb-42af-abaf-8f9efda8746e HTTP/1.1
