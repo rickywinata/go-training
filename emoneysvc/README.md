@@ -27,7 +27,7 @@ These instructions assume that postgres is run & setup with `user=postgres` & `p
     goose -dir ./postgres/migrations postgres "user=postgres password=password dbname=emoneysvc sslmode=disable" up
     ```
 
-2. Run `main.go`
+1. Run `main.go`
 
     ```
     go run main.go
@@ -42,7 +42,7 @@ These instructions assume that postgres is run & setup with `user=postgres` & `p
     ```
 
 
-2. Generate models with sqlboiler.
+1. Generate models with sqlboiler.
 
     ```
     sqlboiler --add-soft-deletes psql
