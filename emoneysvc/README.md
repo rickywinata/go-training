@@ -1,41 +1,49 @@
 # E-Money Service
 
-## Installing
+## Installing project dependencies
 
-- Install goose.
+1. [Go 1.13.0 or newer](https://golang.org/dl/).
 
-```
-go get -u github.com/pressly/goose/cmd/goose
-```
+1. `goose`.
 
-- Install sqlboiler v4.
+    ```
+    go get -u github.com/pressly/goose/cmd/goose
+    ```
 
-```
-go get -u -t github.com/volatiletech/sqlboiler/v4
-go get github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql
-```
+1. `sqlboiler` v4.
 
-## Create migrations
+    ```
+    go get -u -t github.com/volatiletech/sqlboiler/v4
+    go get github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql
+    ```
 
-```
-# With an assumption: currently you're on `./emoneysvc` directory.
-#
+## Running locally
 
-goose -dir ./postgres/migrations create create_table_account sql
-```
+These instructions assume that postgres is run & setup with `user=postgres` & `password=postgres`, and database `emoneysvc` exists.
 
-## Run migrations
+1. Run the migrations
 
-```
-# With an assumption: currently you're on `./emoneysvc` directory
-# and you already have database `emoneysvc` exist.
-#
+    ```    
+    goose -dir ./postgres/migrations postgres "user=postgres password=password dbname=emoneysvc sslmode=disable" up
+    ```
 
-goose -dir ./postgres/migrations postgres "user=postgres password=password dbname=emoneysvc sslmode=disable" up
-```
+2. Run `main.go`
 
-## Generate models with sqlboiler.
+    ```
+    go run main.go
+    ```
 
-```
-sqlboiler --add-soft-deletes psql
-```
+## Adding a new database table
+
+1. Create migrations
+
+    ```
+    goose -dir ./postgres/migrations create create_table_account sql
+    ```
+
+
+2. Generate models with sqlboiler.
+
+    ```
+    sqlboiler --add-soft-deletes psql
+    ```
