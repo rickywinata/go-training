@@ -595,6 +595,334 @@ func testAccountsInsertWhitelist(t *testing.T) {
 	}
 }
 
+func testAccountToManyAccountEntries(t *testing.T) {
+	var err error
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a Account
+	var b, c AccountEntry
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, accountDBTypes, true, accountColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize Account struct: %s", err)
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	if err = randomize.Struct(seed, &b, accountEntryDBTypes, false, accountEntryColumnsWithDefault...); err != nil {
+		t.Fatal(err)
+	}
+	if err = randomize.Struct(seed, &c, accountEntryDBTypes, false, accountEntryColumnsWithDefault...); err != nil {
+		t.Fatal(err)
+	}
+
+	queries.Assign(&b.AccountID, a.ID)
+	queries.Assign(&c.AccountID, a.ID)
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	check, err := a.AccountEntries().All(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	bFound, cFound := false, false
+	for _, v := range check {
+		if queries.Equal(v.AccountID, b.AccountID) {
+			bFound = true
+		}
+		if queries.Equal(v.AccountID, c.AccountID) {
+			cFound = true
+		}
+	}
+
+	if !bFound {
+		t.Error("expected to find b")
+	}
+	if !cFound {
+		t.Error("expected to find c")
+	}
+
+	slice := AccountSlice{&a}
+	if err = a.L.LoadAccountEntries(ctx, tx, false, (*[]*Account)(&slice), nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(a.R.AccountEntries); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
+	}
+
+	a.R.AccountEntries = nil
+	if err = a.L.LoadAccountEntries(ctx, tx, true, &a, nil); err != nil {
+		t.Fatal(err)
+	}
+	if got := len(a.R.AccountEntries); got != 2 {
+		t.Error("number of eager loaded records wrong, got:", got)
+	}
+
+	if t.Failed() {
+		t.Logf("%#v", check)
+	}
+}
+
+func testAccountToManyAddOpAccountEntries(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a Account
+	var b, c, d, e AccountEntry
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, accountDBTypes, false, strmangle.SetComplement(accountPrimaryKeyColumns, accountColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	foreigners := []*AccountEntry{&b, &c, &d, &e}
+	for _, x := range foreigners {
+		if err = randomize.Struct(seed, x, accountEntryDBTypes, false, strmangle.SetComplement(accountEntryPrimaryKeyColumns, accountEntryColumnsWithoutDefault)...); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	foreignersSplitByInsertion := [][]*AccountEntry{
+		{&b, &c},
+		{&d, &e},
+	}
+
+	for i, x := range foreignersSplitByInsertion {
+		err = a.AddAccountEntries(ctx, tx, i != 0, x...)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		first := x[0]
+		second := x[1]
+
+		if !queries.Equal(a.ID, first.AccountID) {
+			t.Error("foreign key was wrong value", a.ID, first.AccountID)
+		}
+		if !queries.Equal(a.ID, second.AccountID) {
+			t.Error("foreign key was wrong value", a.ID, second.AccountID)
+		}
+
+		if first.R.Account != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+		if second.R.Account != &a {
+			t.Error("relationship was not added properly to the foreign slice")
+		}
+
+		if a.R.AccountEntries[i*2] != first {
+			t.Error("relationship struct slice not set to correct value")
+		}
+		if a.R.AccountEntries[i*2+1] != second {
+			t.Error("relationship struct slice not set to correct value")
+		}
+
+		count, err := a.AccountEntries().Count(ctx, tx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if want := int64((i + 1) * 2); count != want {
+			t.Error("want", want, "got", count)
+		}
+	}
+}
+
+func testAccountToManySetOpAccountEntries(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a Account
+	var b, c, d, e AccountEntry
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, accountDBTypes, false, strmangle.SetComplement(accountPrimaryKeyColumns, accountColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	foreigners := []*AccountEntry{&b, &c, &d, &e}
+	for _, x := range foreigners {
+		if err = randomize.Struct(seed, x, accountEntryDBTypes, false, strmangle.SetComplement(accountEntryPrimaryKeyColumns, accountEntryColumnsWithoutDefault)...); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	err = a.SetAccountEntries(ctx, tx, false, &b, &c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	count, err := a.AccountEntries().Count(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 2 {
+		t.Error("count was wrong:", count)
+	}
+
+	err = a.SetAccountEntries(ctx, tx, true, &d, &e)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	count, err = a.AccountEntries().Count(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 2 {
+		t.Error("count was wrong:", count)
+	}
+
+	if !queries.IsValuerNil(b.AccountID) {
+		t.Error("want b's foreign key value to be nil")
+	}
+	if !queries.IsValuerNil(c.AccountID) {
+		t.Error("want c's foreign key value to be nil")
+	}
+	if !queries.Equal(a.ID, d.AccountID) {
+		t.Error("foreign key was wrong value", a.ID, d.AccountID)
+	}
+	if !queries.Equal(a.ID, e.AccountID) {
+		t.Error("foreign key was wrong value", a.ID, e.AccountID)
+	}
+
+	if b.R.Account != nil {
+		t.Error("relationship was not removed properly from the foreign struct")
+	}
+	if c.R.Account != nil {
+		t.Error("relationship was not removed properly from the foreign struct")
+	}
+	if d.R.Account != &a {
+		t.Error("relationship was not added properly to the foreign struct")
+	}
+	if e.R.Account != &a {
+		t.Error("relationship was not added properly to the foreign struct")
+	}
+
+	if a.R.AccountEntries[0] != &d {
+		t.Error("relationship struct slice not set to correct value")
+	}
+	if a.R.AccountEntries[1] != &e {
+		t.Error("relationship struct slice not set to correct value")
+	}
+}
+
+func testAccountToManyRemoveOpAccountEntries(t *testing.T) {
+	var err error
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+
+	var a Account
+	var b, c, d, e AccountEntry
+
+	seed := randomize.NewSeed()
+	if err = randomize.Struct(seed, &a, accountDBTypes, false, strmangle.SetComplement(accountPrimaryKeyColumns, accountColumnsWithoutDefault)...); err != nil {
+		t.Fatal(err)
+	}
+	foreigners := []*AccountEntry{&b, &c, &d, &e}
+	for _, x := range foreigners {
+		if err = randomize.Struct(seed, x, accountEntryDBTypes, false, strmangle.SetComplement(accountEntryPrimaryKeyColumns, accountEntryColumnsWithoutDefault)...); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
+		t.Fatal(err)
+	}
+
+	err = a.AddAccountEntries(ctx, tx, true, foreigners...)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	count, err := a.AccountEntries().Count(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 4 {
+		t.Error("count was wrong:", count)
+	}
+
+	err = a.RemoveAccountEntries(ctx, tx, foreigners[:2]...)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	count, err = a.AccountEntries().Count(ctx, tx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 2 {
+		t.Error("count was wrong:", count)
+	}
+
+	if !queries.IsValuerNil(b.AccountID) {
+		t.Error("want b's foreign key value to be nil")
+	}
+	if !queries.IsValuerNil(c.AccountID) {
+		t.Error("want c's foreign key value to be nil")
+	}
+
+	if b.R.Account != nil {
+		t.Error("relationship was not removed properly from the foreign struct")
+	}
+	if c.R.Account != nil {
+		t.Error("relationship was not removed properly from the foreign struct")
+	}
+	if d.R.Account != &a {
+		t.Error("relationship to a should have been preserved")
+	}
+	if e.R.Account != &a {
+		t.Error("relationship to a should have been preserved")
+	}
+
+	if len(a.R.AccountEntries) != 2 {
+		t.Error("should have preserved two relationships")
+	}
+
+	// Removal doesn't do a stable deletion for performance so we have to flip the order
+	if a.R.AccountEntries[1] != &d {
+		t.Error("relationship to d should have been preserved")
+	}
+	if a.R.AccountEntries[0] != &e {
+		t.Error("relationship to e should have been preserved")
+	}
+}
+
 func testAccountsReload(t *testing.T) {
 	t.Parallel()
 

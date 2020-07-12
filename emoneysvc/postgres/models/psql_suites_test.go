@@ -7,4 +7,6 @@ import "testing"
 
 func TestUpsert(t *testing.T) {
 	t.Run("Accounts", testAccountsUpsert)
+
+	t.Run("AccountEntries", testAccountEntriesUpsert)
 }

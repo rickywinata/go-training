@@ -35,12 +35,18 @@ These instructions assume that postgres is run & setup with `user=postgres` & `p
 
 ## Adding a new database table
 
-1. Create migrations
+1. Create a migration file.
 
     ```
     goose -dir ./postgres/migrations create create_table_account sql
     ```
 
+1. Modify the migration file.
+
+1. Run the migrations.
+    ```    
+    goose -dir ./postgres/migrations postgres "user=postgres password=password dbname=emoneysvc sslmode=disable" up
+    ```
 
 1. Generate models with sqlboiler.
 

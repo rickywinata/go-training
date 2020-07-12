@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	accounthttp "github.com/rickywinata/go-training/emoneysvc/emoney/http"
+	emoneyhttp "github.com/rickywinata/go-training/emoneysvc/emoney/http"
 	"github.com/rickywinata/go-training/emoneysvc/emoney/postgres"
 	"github.com/rickywinata/go-training/emoneysvc/emoney/service"
 	"github.com/rickywinata/go-training/emoneysvc/emoney/view"
@@ -20,13 +20,17 @@ func main() {
 	}
 	defer db.Close()
 
-	pgrepo := postgres.NewAccountRepository(db)
-	accountSvc := service.NewAccountService(pgrepo)
+	accRepo := postgres.NewAccountRepository(db)
+	accEntryRepo := postgres.NewAccountEntryRepository(db)
+	accountSvc := service.NewAccountService(accRepo)
 	accountView := view.NewAccountView(db)
+	transactionSvc := service.NewTransactionService(accRepo, accEntryRepo)
 
 	r := chi.NewRouter()
-	r.Post("/accounts", accounthttp.CreateAccount(accountSvc).ServeHTTP)
-	r.Get("/accounts/{account_id}", accounthttp.GetAccount(accountView).ServeHTTP)
+	r.Post("/accounts", emoneyhttp.CreateAccount(accountSvc).ServeHTTP)
+	r.Get("/accounts/{account_id}", emoneyhttp.GetAccount(accountView).ServeHTTP)
+	r.Post("/topups", emoneyhttp.Topup(transactionSvc).ServeHTTP)
+	r.Post("/transfers", emoneyhttp.Transfer(transactionSvc).ServeHTTP)
 
 	log.Println("Listening on :8080 ...")
 	http.ListenAndServe(":8080", r)

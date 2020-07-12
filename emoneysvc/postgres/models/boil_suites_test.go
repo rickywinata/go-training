@@ -13,68 +13,86 @@ import "testing"
 // Separating the tests thusly grants avoidance of Postgres deadlocks.
 func TestParent(t *testing.T) {
 	t.Run("Accounts", testAccounts)
+	t.Run("AccountEntries", testAccountEntries)
 }
 
 func TestSoftDelete(t *testing.T) {
 	t.Run("Accounts", testAccountsSoftDelete)
+	t.Run("AccountEntries", testAccountEntriesSoftDelete)
 }
 
 func TestQuerySoftDeleteAll(t *testing.T) {
 	t.Run("Accounts", testAccountsQuerySoftDeleteAll)
+	t.Run("AccountEntries", testAccountEntriesQuerySoftDeleteAll)
 }
 
 func TestSliceSoftDeleteAll(t *testing.T) {
 	t.Run("Accounts", testAccountsSliceSoftDeleteAll)
+	t.Run("AccountEntries", testAccountEntriesSliceSoftDeleteAll)
 }
 
 func TestDelete(t *testing.T) {
 	t.Run("Accounts", testAccountsDelete)
+	t.Run("AccountEntries", testAccountEntriesDelete)
 }
 
 func TestQueryDeleteAll(t *testing.T) {
 	t.Run("Accounts", testAccountsQueryDeleteAll)
+	t.Run("AccountEntries", testAccountEntriesQueryDeleteAll)
 }
 
 func TestSliceDeleteAll(t *testing.T) {
 	t.Run("Accounts", testAccountsSliceDeleteAll)
+	t.Run("AccountEntries", testAccountEntriesSliceDeleteAll)
 }
 
 func TestExists(t *testing.T) {
 	t.Run("Accounts", testAccountsExists)
+	t.Run("AccountEntries", testAccountEntriesExists)
 }
 
 func TestFind(t *testing.T) {
 	t.Run("Accounts", testAccountsFind)
+	t.Run("AccountEntries", testAccountEntriesFind)
 }
 
 func TestBind(t *testing.T) {
 	t.Run("Accounts", testAccountsBind)
+	t.Run("AccountEntries", testAccountEntriesBind)
 }
 
 func TestOne(t *testing.T) {
 	t.Run("Accounts", testAccountsOne)
+	t.Run("AccountEntries", testAccountEntriesOne)
 }
 
 func TestAll(t *testing.T) {
 	t.Run("Accounts", testAccountsAll)
+	t.Run("AccountEntries", testAccountEntriesAll)
 }
 
 func TestCount(t *testing.T) {
 	t.Run("Accounts", testAccountsCount)
+	t.Run("AccountEntries", testAccountEntriesCount)
 }
 
 func TestHooks(t *testing.T) {
 	t.Run("Accounts", testAccountsHooks)
+	t.Run("AccountEntries", testAccountEntriesHooks)
 }
 
 func TestInsert(t *testing.T) {
 	t.Run("Accounts", testAccountsInsert)
 	t.Run("Accounts", testAccountsInsertWhitelist)
+	t.Run("AccountEntries", testAccountEntriesInsert)
+	t.Run("AccountEntries", testAccountEntriesInsertWhitelist)
 }
 
 // TestToOne tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToOne(t *testing.T) {}
+func TestToOne(t *testing.T) {
+	t.Run("AccountEntryToAccountUsingAccount", testAccountEntryToOneAccountUsingAccount)
+}
 
 // TestOneToOne tests cannot be run in parallel
 // or deadlocks can occur.
@@ -82,15 +100,21 @@ func TestOneToOne(t *testing.T) {}
 
 // TestToMany tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToMany(t *testing.T) {}
+func TestToMany(t *testing.T) {
+	t.Run("AccountToAccountEntries", testAccountToManyAccountEntries)
+}
 
 // TestToOneSet tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToOneSet(t *testing.T) {}
+func TestToOneSet(t *testing.T) {
+	t.Run("AccountEntryToAccountUsingAccountEntries", testAccountEntryToOneSetOpAccountUsingAccount)
+}
 
 // TestToOneRemove tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToOneRemove(t *testing.T) {}
+func TestToOneRemove(t *testing.T) {
+	t.Run("AccountEntryToAccountUsingAccountEntries", testAccountEntryToOneRemoveOpAccountUsingAccount)
+}
 
 // TestOneToOneSet tests cannot be run in parallel
 // or deadlocks can occur.
@@ -102,32 +126,43 @@ func TestOneToOneRemove(t *testing.T) {}
 
 // TestToManyAdd tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToManyAdd(t *testing.T) {}
+func TestToManyAdd(t *testing.T) {
+	t.Run("AccountToAccountEntries", testAccountToManyAddOpAccountEntries)
+}
 
 // TestToManySet tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToManySet(t *testing.T) {}
+func TestToManySet(t *testing.T) {
+	t.Run("AccountToAccountEntries", testAccountToManySetOpAccountEntries)
+}
 
 // TestToManyRemove tests cannot be run in parallel
 // or deadlocks can occur.
-func TestToManyRemove(t *testing.T) {}
+func TestToManyRemove(t *testing.T) {
+	t.Run("AccountToAccountEntries", testAccountToManyRemoveOpAccountEntries)
+}
 
 func TestReload(t *testing.T) {
 	t.Run("Accounts", testAccountsReload)
+	t.Run("AccountEntries", testAccountEntriesReload)
 }
 
 func TestReloadAll(t *testing.T) {
 	t.Run("Accounts", testAccountsReloadAll)
+	t.Run("AccountEntries", testAccountEntriesReloadAll)
 }
 
 func TestSelect(t *testing.T) {
 	t.Run("Accounts", testAccountsSelect)
+	t.Run("AccountEntries", testAccountEntriesSelect)
 }
 
 func TestUpdate(t *testing.T) {
 	t.Run("Accounts", testAccountsUpdate)
+	t.Run("AccountEntries", testAccountEntriesUpdate)
 }
 
 func TestSliceUpdateAll(t *testing.T) {
 	t.Run("Accounts", testAccountsSliceUpdateAll)
+	t.Run("AccountEntries", testAccountEntriesSliceUpdateAll)
 }

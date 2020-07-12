@@ -135,10 +135,14 @@ var AccountWhere = struct {
 
 // AccountRels is where relationship names are stored.
 var AccountRels = struct {
-}{}
+	AccountEntries string
+}{
+	AccountEntries: "AccountEntries",
+}
 
 // accountR is where relationships are stored.
 type accountR struct {
+	AccountEntries AccountEntrySlice `boil:"AccountEntries" json:"AccountEntries" toml:"AccountEntries" yaml:"AccountEntries"`
 }
 
 // NewStruct creates a new relationship struct
@@ -429,6 +433,250 @@ func (q accountQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bo
 	}
 
 	return count > 0, nil
+}
+
+// AccountEntries retrieves all the account_entry's AccountEntries with an executor.
+func (o *Account) AccountEntries(mods ...qm.QueryMod) accountEntryQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"account_entry\".\"account_id\"=?", o.ID),
+		qmhelper.WhereIsNull("\"account_entry\".\"deleted_at\""),
+	)
+
+	query := AccountEntries(queryMods...)
+	queries.SetFrom(query.Query, "\"account_entry\"")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"\"account_entry\".*"})
+	}
+
+	return query
+}
+
+// LoadAccountEntries allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (accountL) LoadAccountEntries(ctx context.Context, e boil.ContextExecutor, singular bool, maybeAccount interface{}, mods queries.Applicator) error {
+	var slice []*Account
+	var object *Account
+
+	if singular {
+		object = maybeAccount.(*Account)
+	} else {
+		slice = *maybeAccount.(*[]*Account)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &accountR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &accountR{}
+			}
+
+			for _, a := range args {
+				if queries.Equal(a, obj.ID) {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`account_entry`),
+		qm.WhereIn(`account_entry.account_id in ?`, args...),
+		qmhelper.WhereIsNull(`account_entry.deleted_at`),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load account_entry")
+	}
+
+	var resultSlice []*AccountEntry
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice account_entry")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on account_entry")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for account_entry")
+	}
+
+	if len(accountEntryAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.AccountEntries = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &accountEntryR{}
+			}
+			foreign.R.Account = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if queries.Equal(local.ID, foreign.AccountID) {
+				local.R.AccountEntries = append(local.R.AccountEntries, foreign)
+				if foreign.R == nil {
+					foreign.R = &accountEntryR{}
+				}
+				foreign.R.Account = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// AddAccountEntries adds the given related objects to the existing relationships
+// of the account, optionally inserting them as new records.
+// Appends related to o.R.AccountEntries.
+// Sets related.R.Account appropriately.
+func (o *Account) AddAccountEntries(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*AccountEntry) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			queries.Assign(&rel.AccountID, o.ID)
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"account_entry\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"account_id"}),
+				strmangle.WhereClause("\"", "\"", 2, accountEntryPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			queries.Assign(&rel.AccountID, o.ID)
+		}
+	}
+
+	if o.R == nil {
+		o.R = &accountR{
+			AccountEntries: related,
+		}
+	} else {
+		o.R.AccountEntries = append(o.R.AccountEntries, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &accountEntryR{
+				Account: o,
+			}
+		} else {
+			rel.R.Account = o
+		}
+	}
+	return nil
+}
+
+// SetAccountEntries removes all previously related items of the
+// account replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.Account's AccountEntries accordingly.
+// Replaces o.R.AccountEntries with related.
+// Sets related.R.Account's AccountEntries accordingly.
+func (o *Account) SetAccountEntries(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*AccountEntry) error {
+	query := "update \"account_entry\" set \"account_id\" = null where \"account_id\" = $1"
+	values := []interface{}{o.ID}
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, query)
+		fmt.Fprintln(writer, values)
+	}
+	_, err := exec.ExecContext(ctx, query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+
+	if o.R != nil {
+		for _, rel := range o.R.AccountEntries {
+			queries.SetScanner(&rel.AccountID, nil)
+			if rel.R == nil {
+				continue
+			}
+
+			rel.R.Account = nil
+		}
+
+		o.R.AccountEntries = nil
+	}
+	return o.AddAccountEntries(ctx, exec, insert, related...)
+}
+
+// RemoveAccountEntries relationships from objects passed in.
+// Removes related items from R.AccountEntries (uses pointer comparison, removal does not keep order)
+// Sets related.R.Account.
+func (o *Account) RemoveAccountEntries(ctx context.Context, exec boil.ContextExecutor, related ...*AccountEntry) error {
+	var err error
+	for _, rel := range related {
+		queries.SetScanner(&rel.AccountID, nil)
+		if rel.R != nil {
+			rel.R.Account = nil
+		}
+		if _, err = rel.Update(ctx, exec, boil.Whitelist("account_id")); err != nil {
+			return err
+		}
+	}
+	if o.R == nil {
+		return nil
+	}
+
+	for _, rel := range related {
+		for i, ri := range o.R.AccountEntries {
+			if rel != ri {
+				continue
+			}
+
+			ln := len(o.R.AccountEntries)
+			if ln > 1 && i < ln-1 {
+				o.R.AccountEntries[i] = o.R.AccountEntries[ln-1]
+			}
+			o.R.AccountEntries = o.R.AccountEntries[:ln-1]
+			break
+		}
+	}
+
+	return nil
 }
 
 // Accounts retrieves all the records using an executor.
