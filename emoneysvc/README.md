@@ -19,7 +19,7 @@
 
 ## Running locally
 
-These instructions assume that postgres is run & setup with `user=postgres` & `password=postgres`, and database `emoneysvc` exists.
+These instructions assume that postgres is run & setup with `user=postgres` & `password=password`, and database `emoneysvc` exists.
 
 1. Run the migrations
 
