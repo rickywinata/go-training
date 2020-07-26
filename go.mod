@@ -3,11 +3,13 @@ module github.com/rickywinata/go-training
 go 1.14
 
 require (
+	github.com/frankban/quicktest v1.10.0
 	github.com/friendsofgo/errors v0.9.2
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-kit/kit v0.10.0
 	github.com/go-playground/universal-translator v0.17.0 // indirect
+	github.com/google/go-cmp v0.4.0
 	github.com/google/uuid v1.0.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12

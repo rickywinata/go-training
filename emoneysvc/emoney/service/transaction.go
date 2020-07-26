@@ -47,7 +47,10 @@ func (s *transactionService) Topup(ctx context.Context, cmd *TopupCommand) error
 		return err
 	}
 
-	trx := emoney.Topup(acc, cmd.Amount)
+	trx, err := emoney.Topup(acc, cmd.Amount)
+	if err != nil {
+		return err
+	}
 
 	if err := s.accRepo.Update(ctx, acc); err != nil {
 		return err
@@ -74,7 +77,10 @@ func (s *transactionService) Transfer(ctx context.Context, cmd *TransferCommand)
 		return err
 	}
 
-	trx := emoney.Transfer(fromAcc, toAcc, cmd.Amount)
+	trx, err := emoney.Transfer(fromAcc, toAcc, cmd.Amount)
+	if err != nil {
+		return err
+	}
 
 	if err := s.accRepo.Update(ctx, fromAcc); err != nil {
 		return err
