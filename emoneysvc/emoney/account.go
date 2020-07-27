@@ -13,8 +13,9 @@ var (
 
 // Account represents an item to be sold.
 type Account struct {
-	ID      string `json:"id"`
-	Balance int    `json:"balance"`
+	ID         string `json:"id"`
+	Balance    int    `json:"balance"`
+	Registered bool   `json:"registered"`
 }
 
 // AccountEntry represents an entry on an account.

@@ -14,7 +14,7 @@ func TestTopupSuccess(t *testing.T) {
 		wantBalance int
 		wantTrx     *Trx
 	}{
-		"success": {
+		"success (unregistered)": {
 			acc:         &Account{ID: "1"},
 			amount:      10000,
 			wantBalance: 10000,
@@ -23,6 +23,20 @@ func TestTopupSuccess(t *testing.T) {
 					{
 						AccountID: "1",
 						Amount:    10000,
+					},
+				},
+			},
+		},
+
+		"success when the registered account topups more than 2.000.000": {
+			acc:         &Account{ID: "1", Registered: true},
+			amount:      2010000,
+			wantBalance: 2010000,
+			wantTrx: &Trx{
+				Entries: []*AccountEntry{
+					{
+						AccountID: "1",
+						Amount:    2010000,
 					},
 				},
 			},
@@ -49,8 +63,13 @@ func TestTopupFailed(t *testing.T) {
 		amount int
 		want   error
 	}{
-		"balance already at max limit": {
+		"the unregistered account topups when the balance is already at max limit (2.000.000)": {
 			acc:    &Account{ID: "1", Balance: 2000000},
+			amount: 10000,
+			want:   ErrMaxBalance,
+		},
+		"the registered account topups when the balance is already at max limit (10.000.000)": {
+			acc:    &Account{ID: "1", Balance: 10000000},
 			amount: 10000,
 			want:   ErrMaxBalance,
 		},
@@ -120,13 +139,13 @@ func TestTransferFailed(t *testing.T) {
 	}{
 		"balance acc1 is not enough": {
 			acc1:   &Account{ID: "1", Balance: 5000},
-			acc2:   &Account{ID: "1", Balance: 2000000},
+			acc2:   &Account{ID: "2", Balance: 1000000},
 			amount: 10000,
 			want:   ErrBalanceNotEnough,
 		},
 		"balance acc2 already at max limit": {
 			acc1:   &Account{ID: "1", Balance: 15000},
-			acc2:   &Account{ID: "1", Balance: 2000000},
+			acc2:   &Account{ID: "2", Balance: 2000000},
 			amount: 10000,
 			want:   ErrMaxBalance,
 		},

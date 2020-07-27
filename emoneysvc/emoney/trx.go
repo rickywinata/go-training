@@ -6,7 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
-const maxBalance = 2000000
+const maxUnregisteredBalance = 2000000
+const maxRegisteredBalance = 10000000
 
 // List of errors.
 var (
@@ -25,6 +26,11 @@ type Trx struct {
 // - Add some amount to an account.
 //
 func Topup(acc *Account, amount int) (*Trx, error) {
+	maxBalance := maxUnregisteredBalance
+	if acc.Registered {
+		maxBalance = maxRegisteredBalance
+	}
+
 	if acc.Balance+amount > maxBalance {
 		return nil, ErrMaxBalance
 	}
@@ -51,12 +57,17 @@ func Topup(acc *Account, amount int) (*Trx, error) {
 // - Add some amount to another account.
 //
 func Transfer(accFrom *Account, accTo *Account, amount int) (*Trx, error) {
-	if accFrom.Balance-amount < 0 {
-		return nil, ErrBalanceNotEnough
+	maxBalance := maxUnregisteredBalance
+	if accTo.Registered {
+		maxBalance = maxRegisteredBalance
 	}
 
 	if accTo.Balance+amount > maxBalance {
 		return nil, ErrMaxBalance
+	}
+
+	if accFrom.Balance-amount < 0 {
+		return nil, ErrBalanceNotEnough
 	}
 
 	accFrom.Balance -= amount
