@@ -46,18 +46,18 @@ POST http://localhost:8080/accounts HTTP/1.1
 
 ###
 
-GET http://localhost:8080/accounts/db87651b-84bb-42af-abaf-8f9efda8746e HTTP/1.1
+GET http://localhost:8080/accounts/bac2191d-e241-47ae-8fa6-2783cdad214a HTTP/1.1
 
 ###
 
-GET http://localhost:8080/accounts/9b63c29b-b1ce-4b7b-b6bd-55e9119d37ee HTTP/1.1
+GET http://localhost:8080/accounts/ce636cde-57c5-4df7-9b63-30b27b89ce98 HTTP/1.1
 
 ###
 
 POST http://localhost:8080/topups HTTP/1.
 
 {
-    "account_id": "db87651b-84bb-42af-abaf-8f9efda8746e",
+    "account_id": "bac2191d-e241-47ae-8fa6-2783cdad214a",
     "amount": 10000
 }
 
@@ -66,7 +66,7 @@ POST http://localhost:8080/topups HTTP/1.
 POST http://localhost:8080/transfers HTTP/1.
 
 {
-    "from_account_id": "db87651b-84bb-42af-abaf-8f9efda8746e", 
-    "to_account_id": "9b63c29b-b1ce-4b7b-b6bd-55e9119d37ee",
+    "from_account_id": "bac2191d-e241-47ae-8fa6-2783cdad214a", 
+    "to_account_id": "ce636cde-57c5-4df7-9b63-30b27b89ce98",
     "amount": 2000
 }

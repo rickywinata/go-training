@@ -14,24 +14,24 @@ var (
 	ErrBalanceNotEnough = errors.New("balance is not enough")
 )
 
-// Transaction represents entries.
-type Transaction struct {
+// Trx represents the created accounting entries when a transaction happens.
+type Trx struct {
 	Entries []*AccountEntry
 }
 
 // Topup deposits money to an account.
 //
-// It creates a transaction with one entry:
+// It creates a Trx with one entry:
 // - Add some amount to an account.
 //
-func Topup(acc *Account, amount int) (*Transaction, error) {
+func Topup(acc *Account, amount int) (*Trx, error) {
 	if acc.Balance+amount > maxBalance {
 		return nil, ErrMaxBalance
 	}
 
 	acc.Balance += amount
 
-	trx := &Transaction{
+	trx := &Trx{
 		Entries: []*AccountEntry{
 			{
 				ID:        uuid.New().String(),
@@ -46,11 +46,11 @@ func Topup(acc *Account, amount int) (*Transaction, error) {
 
 // Transfer sends money from one account to another account.
 //
-// It creates a transaction with 2 entries:
+// It creates a Trx with 2 entries:
 // - Remove some amount from 1 account.
 // - Add some amount to another account.
 //
-func Transfer(accFrom *Account, accTo *Account, amount int) (*Transaction, error) {
+func Transfer(accFrom *Account, accTo *Account, amount int) (*Trx, error) {
 	if accFrom.Balance-amount < 0 {
 		return nil, ErrBalanceNotEnough
 	}
@@ -62,7 +62,7 @@ func Transfer(accFrom *Account, accTo *Account, amount int) (*Transaction, error
 	accFrom.Balance -= amount
 	accTo.Balance += amount
 
-	trx := &Transaction{
+	trx := &Trx{
 		Entries: []*AccountEntry{
 			{
 				ID:        uuid.New().String(),

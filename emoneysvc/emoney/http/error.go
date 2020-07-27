@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/rickywinata/go-training/emoneysvc/emoney"
 	"github.com/rickywinata/go-training/productsvc5/product/view"
 )
 
@@ -26,9 +27,18 @@ func err2code(err error) int {
 	if err == view.ErrNotFound {
 		return http.StatusNotFound
 	}
+	if err == emoney.ErrBalanceNotEnough {
+		return http.StatusBadRequest
+	}
+	if err == emoney.ErrMaxBalance {
+		return http.StatusBadRequest
+	}
+	if err == emoney.ErrAccountNotFound {
+		return http.StatusNotFound
+	}
 	return http.StatusInternalServerError
 }
 
 type errorWrapper struct {
-	Error string
+	Error string `json:"error"`
 }

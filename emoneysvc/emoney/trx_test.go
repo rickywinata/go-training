@@ -12,13 +12,13 @@ func TestTopupSuccess(t *testing.T) {
 		acc         *Account
 		amount      int
 		wantBalance int
-		wantTrx     *Transaction
+		wantTrx     *Trx
 	}{
 		"success": {
 			acc:         &Account{ID: "1"},
 			amount:      10000,
 			wantBalance: 10000,
-			wantTrx: &Transaction{
+			wantTrx: &Trx{
 				Entries: []*AccountEntry{
 					{
 						AccountID: "1",
@@ -72,7 +72,7 @@ func TestTransferSuccess(t *testing.T) {
 		amount          int
 		wantAcc1Balance int
 		wantAcc2Balance int
-		wantTrx         *Transaction
+		wantTrx         *Trx
 	}{
 		"success": {
 			acc1:            &Account{ID: "1", Balance: 15000},
@@ -80,7 +80,7 @@ func TestTransferSuccess(t *testing.T) {
 			amount:          10000,
 			wantAcc1Balance: 5000,
 			wantAcc2Balance: 10000,
-			wantTrx: &Transaction{
+			wantTrx: &Trx{
 				Entries: []*AccountEntry{
 					{
 						AccountID: "1",

@@ -21,7 +21,7 @@ type (
 	}
 )
 
-// TransactionService is an interface for transaction operations.
+// TransactionService is an interface for Trx operations.
 type TransactionService interface {
 	Topup(ctx context.Context, cmd *TopupCommand) error
 	Transfer(ctx context.Context, cmd *TransferCommand) error
@@ -32,7 +32,7 @@ type transactionService struct {
 	accEntryRepo emoney.AccountEntryRepository
 }
 
-// NewTransactionService creates a new transaction service.
+// NewTransactionService creates a new Trx service.
 func NewTransactionService(
 	accRepo emoney.AccountRepository,
 	accEntryRepo emoney.AccountEntryRepository,
