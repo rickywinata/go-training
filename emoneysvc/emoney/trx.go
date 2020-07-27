@@ -14,7 +14,7 @@ var (
 	ErrBalanceNotEnough = errors.New("balance is not enough")
 )
 
-// Trx represents the created accounting entries when a transaction happens.
+// Trx represents a money movement from one account to another account.
 type Trx struct {
 	Entries []*AccountEntry
 }
