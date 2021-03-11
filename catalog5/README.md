@@ -1,7 +1,8 @@
 # Catalog 5
 
 Changelog:
-- Add `./internal/catalog/http/error.go`.
+
+- Implement go-kit http error encoder.
 
 ## Installing
 
