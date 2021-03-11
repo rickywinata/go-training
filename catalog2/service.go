@@ -5,8 +5,8 @@ import (
 )
 
 type (
-	// CreateProductCommand represents the parameters for creating a product.
-	CreateProductCommand struct {
+	// CreateProductInput represents the parameters for creating a product.
+	CreateProductInput struct {
 		Name  string `json:"name"`
 		Price int    `json:"price"`
 	}
@@ -14,7 +14,7 @@ type (
 
 // ProductService is an interface for product operations.
 type ProductService interface {
-	CreateProduct(ctx context.Context, cmd *CreateProductCommand) (*Product, error)
+	CreateProduct(ctx context.Context, input *CreateProductInput) (*Product, error)
 }
 
 type productService struct {
@@ -28,10 +28,10 @@ func NewProductService(productRepo1 ProductRepository) ProductService {
 	}
 }
 
-func (s *productService) CreateProduct(ctx context.Context, cmd *CreateProductCommand) (*Product, error) {
+func (s *productService) CreateProduct(ctx context.Context, input *CreateProductInput) (*Product, error) {
 	product := &Product{
-		Name:  cmd.Name,
-		Price: cmd.Price,
+		Name:  input.Name,
+		Price: input.Price,
 	}
 
 	if err := s.productRepo.Insert(ctx, product); err != nil {

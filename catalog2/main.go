@@ -20,18 +20,18 @@ func main() {
 	createProductHandler := httptransport.NewServer(
 		// Endpoint.
 		func(ctx context.Context, request interface{}) (interface{}, error) {
-			cmd := request.(*CreateProductCommand)
-			product, err := svc.CreateProduct(ctx, cmd)
+			input := request.(*CreateProductInput)
+			product, err := svc.CreateProduct(ctx, input)
 			return product, err
 		},
 
 		// Decoder.
 		func(_ context.Context, r *http.Request) (interface{}, error) {
-			var cmd CreateProductCommand
-			if err := json.NewDecoder(r.Body).Decode(&cmd); err != nil {
+			var input CreateProductInput
+			if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 				return nil, err
 			}
-			return &cmd, nil
+			return &input, nil
 		},
 
 		// Encoder.
