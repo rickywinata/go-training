@@ -38,11 +38,11 @@ func CreateProduct(svc catalog.Service) http.Handler {
 
 		// Decoder.
 		func(_ context.Context, r *http.Request) (interface{}, error) {
-			var cmd catalog.CreateProductCommand
-			if err := json.NewDecoder(r.Body).Decode(&cmd); err != nil {
+			var input catalog.CreateProductInput
+			if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 				return nil, err
 			}
-			return &cmd, nil
+			return &input, nil
 		},
 
 		// Encoder.

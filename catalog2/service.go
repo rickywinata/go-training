@@ -5,7 +5,7 @@ import (
 )
 
 type (
-	// CreateProductInput represents the parameters for creating a product.
+	// CreateProductInput represents the input for creating a product.
 	CreateProductInput struct {
 		Name  string `json:"name"`
 		Price int    `json:"price"`

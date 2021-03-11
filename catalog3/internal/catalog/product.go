@@ -7,8 +7,8 @@ import (
 )
 
 type (
-	// CreateProductCommand represents the parameters for creating a catalog\.
-	CreateProductCommand struct {
+	// CreateProductInput represents the input for creating a product.
+	CreateProductInput struct {
 		Name  string `json:"name"`
 		Price int    `json:"price"`
 	}
@@ -16,7 +16,7 @@ type (
 
 // Service is an interface for catalog use cases.
 type Service interface {
-	CreateProduct(ctx context.Context, cmd *CreateProductCommand) (*model.Product, error)
+	CreateProduct(ctx context.Context, input *CreateProductInput) (*model.Product, error)
 }
 
 type service struct {
@@ -30,10 +30,10 @@ func NewService(productRepo1 model.Repository) Service {
 	}
 }
 
-func (s *service) CreateProduct(ctx context.Context, cmd *CreateProductCommand) (*model.Product, error) {
+func (s *service) CreateProduct(ctx context.Context, input *CreateProductInput) (*model.Product, error) {
 	p := &model.Product{
-		Name:  cmd.Name,
-		Price: cmd.Price,
+		Name:  input.Name,
+		Price: input.Price,
 	}
 
 	if err := s.productRepo.Insert(ctx, p); err != nil {

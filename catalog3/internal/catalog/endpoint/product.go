@@ -20,8 +20,8 @@ func GetProduct(productView view.ProductView) endpoint.Endpoint {
 // CreateProduct creates endpoint.
 func CreateProduct(svc catalog.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		cmd := request.(*catalog.CreateProductCommand)
-		product, err := svc.CreateProduct(ctx, cmd)
+		input := request.(*catalog.CreateProductInput)
+		product, err := svc.CreateProduct(ctx, input)
 		return product, err
 	}
 }
