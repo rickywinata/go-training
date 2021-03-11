@@ -8,15 +8,15 @@ import (
 	"github.com/rickywinata/go-training/catalog3/internal/catalog"
 	cataloghttp "github.com/rickywinata/go-training/catalog3/internal/catalog/http"
 	"github.com/rickywinata/go-training/catalog3/internal/catalog/inmem"
-	"github.com/rickywinata/go-training/catalog3/internal/catalog/service"
+	"github.com/rickywinata/go-training/catalog3/internal/catalog/model"
 	"github.com/rickywinata/go-training/catalog3/internal/catalog/view"
 )
 
 func main() {
 	repo := &inmem.ProductRepository{
-		Data: []*catalog.Product{},
+		Data: []*model.Product{},
 	}
-	catalogsvc := service.NewProductService(repo)
+	catalogsvc := catalog.NewService(repo)
 	productView := view.NewProductView(repo)
 
 	r := chi.NewRouter()

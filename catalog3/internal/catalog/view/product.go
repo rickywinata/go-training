@@ -3,8 +3,8 @@ package view
 import (
 	"context"
 
-	"github.com/rickywinata/go-training/catalog3/internal/catalog"
 	"github.com/rickywinata/go-training/catalog3/internal/catalog/inmem"
+	"github.com/rickywinata/go-training/catalog3/internal/catalog/model"
 )
 
 type (
@@ -16,7 +16,7 @@ type (
 
 // ProductView is an interface for product query operations.
 type ProductView interface {
-	GetProduct(ctx context.Context, q *GetProductQuery) (*catalog.Product, error)
+	GetProduct(ctx context.Context, q *GetProductQuery) (*model.Product, error)
 }
 
 type productView struct {
@@ -30,7 +30,7 @@ func NewProductView(productRepo1 *inmem.ProductRepository) ProductView {
 	}
 }
 
-func (s *productView) GetProduct(ctx context.Context, q *GetProductQuery) (*catalog.Product, error) {
+func (s *productView) GetProduct(ctx context.Context, q *GetProductQuery) (*model.Product, error) {
 	for _, d := range s.productRepo.Data {
 		if d.Name == q.Name {
 			return d, nil
