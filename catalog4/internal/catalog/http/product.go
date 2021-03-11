@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-chi/chi"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/rickywinata/go-training/catalog4/internal/catalog"
 	"github.com/rickywinata/go-training/catalog4/internal/catalog/endpoint"
-	"github.com/rickywinata/go-training/catalog4/internal/catalog/service"
 	"github.com/rickywinata/go-training/catalog4/internal/catalog/view"
 )
 
@@ -31,18 +31,18 @@ func GetProduct(productView view.ProductView) http.Handler {
 }
 
 // CreateProduct creates http handler.
-func CreateProduct(svc service.ProductService) http.Handler {
+func CreateProduct(svc catalog.Service) http.Handler {
 	return httptransport.NewServer(
 		// Endpoint.
 		endpoint.CreateProduct(svc),
 
 		// Decoder.
 		func(_ context.Context, r *http.Request) (interface{}, error) {
-			var cmd service.CreateProductCommand
-			if err := json.NewDecoder(r.Body).Decode(&cmd); err != nil {
+			var input catalog.CreateProductInput
+			if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 				return nil, err
 			}
-			return &cmd, nil
+			return &input, nil
 		},
 
 		// Encoder.

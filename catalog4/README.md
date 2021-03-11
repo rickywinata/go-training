@@ -21,7 +21,7 @@ go get github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql
 # With an assumption: currently you're on `./catalog4` directory.
 #
 
-goose -dir ./internal/postgres/migrations create create_table_product sql
+goose -dir ./internal/database/migrations create create_table_product sql
 ```
 
 ## Run migrations
@@ -31,7 +31,7 @@ goose -dir ./internal/postgres/migrations create create_table_product sql
 # and you already have database `catalogsvc` exist.
 #
 
-goose -dir ./internal/postgres/migrations postgres "user=postgres password=password dbname=catalog sslmode=disable" up
+goose -dir ./internal/database/migrations postgres "user=postgres password=password dbname=catalog sslmode=disable" up
 ```
 
 ## Generate models with sqlboiler.

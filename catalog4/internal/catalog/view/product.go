@@ -4,8 +4,7 @@ import (
 	"context"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/rickywinata/go-training/catalog4/internal/catalog"
-	"github.com/rickywinata/go-training/catalog4/internal/postgres/models"
+	"github.com/rickywinata/go-training/catalog4/internal/database/model"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -16,9 +15,15 @@ type (
 	}
 )
 
+// Product is a view-only representation of model.Product.
+type Product struct {
+	Name  string `json:"name" validate:"max=5"`
+	Price int    `json:"price"`
+}
+
 // ProductView is an interface for product query operations.
 type ProductView interface {
-	GetProduct(ctx context.Context, q *GetProductQuery) (*catalog.Product, error)
+	GetProduct(ctx context.Context, q *GetProductQuery) (*Product, error)
 }
 
 type productView struct {
@@ -32,13 +37,13 @@ func NewProductView(db *sqlx.DB) ProductView {
 	}
 }
 
-func (v *productView) GetProduct(ctx context.Context, q *GetProductQuery) (*catalog.Product, error) {
-	mproduct, err := models.Products(qm.Where("name = ?", q.Name)).One(ctx, v.db)
+func (v *productView) GetProduct(ctx context.Context, q *GetProductQuery) (*Product, error) {
+	mproduct, err := model.Products(qm.Where("name = ?", q.Name)).One(ctx, v.db)
 	if err != nil {
 		return nil, err
 	}
 
-	return &catalog.Product{
+	return &Product{
 		Name:  mproduct.Name,
 		Price: mproduct.Price.Int,
 	}, nil

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kit/kit/endpoint"
-	"github.com/rickywinata/go-training/catalog4/internal/catalog/service"
+	"github.com/rickywinata/go-training/catalog4/internal/catalog"
 	"github.com/rickywinata/go-training/catalog4/internal/catalog/view"
 )
 
@@ -18,10 +18,10 @@ func GetProduct(productView view.ProductView) endpoint.Endpoint {
 }
 
 // CreateProduct creates endpoint.
-func CreateProduct(svc service.ProductService) endpoint.Endpoint {
+func CreateProduct(svc catalog.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		cmd := request.(*service.CreateProductCommand)
-		product, err := svc.CreateProduct(ctx, cmd)
+		input := request.(*catalog.CreateProductInput)
+		product, err := svc.CreateProduct(ctx, input)
 		return product, err
 	}
 }

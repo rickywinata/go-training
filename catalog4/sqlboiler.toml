@@ -1,5 +1,6 @@
-output     = "./internal/postgres/models"
-wipe       = true
+output   = "./internal/database/model"
+pkgname  = "model"
+wipe     = true
 
 [psql]
 dbname = "catalog"
