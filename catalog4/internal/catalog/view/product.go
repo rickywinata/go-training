@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/rickywinata/go-training/catalog4/internal/database/model"
+	"github.com/rickywinata/go-training/catalog4/internal/catalog/model"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 

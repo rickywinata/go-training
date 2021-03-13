@@ -1,6 +1,6 @@
 # Catalog 4
 
-## Installing
+## Installing project dependencies
 
 - Install goose.
 
@@ -15,27 +15,40 @@ go get -u -t github.com/volatiletech/sqlboiler/v4
 go get github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql
 ```
 
-## Create migrations
+## Running locally
 
-```
-# With an assumption: currently you're on `./catalog4` directory.
-#
+These instructions assume that postgres is run & setup with `user=postgres` & `password=password`, and database `catalog` exists.
 
-goose -dir ./internal/database/migrations create create_table_product sql
-```
+1. Run the migrations
 
-## Run migrations
+   ```
+   goose -dir ./internal/catalog/migrations postgres "user=postgres password=password dbname=catalog sslmode=disable" up
+   ```
 
-```
-# With an assumption: currently you're on `./catalog4` directory
-# and you already have database `catalogsvc` exist.
-#
+1. Run `main.go`
 
-goose -dir ./internal/database/migrations postgres "user=postgres password=password dbname=catalog sslmode=disable" up
-```
+   ```
+   go run ./cmd/catalog
+   ```
 
-## Generate models with sqlboiler.
+## Adding a new database table
 
-```
-sqlboiler --add-soft-deletes psql
-```
+1. Create a migration file.
+
+   ```
+   goose -dir ./internal/catalog/migrations create create_table_name_of_table sql
+   ```
+
+1. Write the `CREATE TABLE` query in the migration file.
+
+1. Run the migrations.
+
+   ```
+   goose -dir ./internal/catalog/migrations postgres "user=postgres password=password dbname=catalog sslmode=disable" up
+   ```
+
+1. Generate models with sqlboiler.
+
+   ```
+   (cd ./internal/catalog && sqlboiler --add-soft-deletes psql)
+   ```
