@@ -4,12 +4,12 @@ Changelog:
 
 - Implement go-kit http error encoder.
 
-## Installing
+## Installing project dependencies
 
-- Install goose.
+- Install golang-migrate.
 
 ```
-go get -u github.com/pressly/goose/cmd/goose
+https://github.com/golang-migrate/migrate/blob/master/cmd/migrate/README.md#installation
 ```
 
 - Install sqlboiler v4.
@@ -19,27 +19,40 @@ go get -u -t github.com/volatiletech/sqlboiler/v4
 go get github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql
 ```
 
-## Create migrations
+## Running locally
 
-```
-# With an assumption: currently you're on `./catalogsvc5` directory.
-#
+These instructions assume that postgres is run & setup with `user=postgres` & `password=password`, and database `catalog` exists.
 
-goose -dir ./postgres/migrations create create_table_product sql
-```
+1. Run the migrations
 
-## Run migrations
+   ```
+   migrate -source file://internal/catalog/migrations -database "postgres://postgres:password@localhost:5432/catalog?sslmode=disable" up
+   ```
 
-```
-# With an assumption: currently you're on `./catalogsvc5` directory
-# and you already have database `catalogsvc` exist.
-#
+1. Run `main.go`
 
-goose -dir ./postgres/migrations postgres "user=postgres password=password dbname=catalogsvc sslmode=disable" up
-```
+   ```
+   go run ./cmd/catalog
+   ```
 
-## Generate models with sqlboiler.
+## Adding a new database table
 
-```
-sqlboiler --add-soft-deletes psql
-```
+1. Create a migration file.
+
+   ```
+   migrate create -ext sql -dir internal/catalog/migrations -seq create_table_name
+   ```
+
+1. Write the `CREATE TABLE` query in the migration file.
+
+1. Run the migrations.
+
+   ```
+   migrate -source file://internal/catalog/migrations -database "postgres://postgres:password@localhost:5432/catalog?sslmode=disable" u
+   ```
+
+1. Generate models with sqlboiler.
+
+   ```
+   (cd ./internal/catalog && sqlboiler --add-soft-deletes psql)
+   ```

@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/rickywinata/go-training/catalog5/internal/catalog/model"
 	"github.com/rickywinata/go-training/catalog5/internal/catalog/view"
-	"github.com/rickywinata/go-training/catalog5/internal/database/model"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )

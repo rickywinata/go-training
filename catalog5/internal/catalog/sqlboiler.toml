@@ -1,4 +1,4 @@
-output   = "./internal/database/model"
+output   = "./model"
 pkgname  = "model"
 wipe     = true
 

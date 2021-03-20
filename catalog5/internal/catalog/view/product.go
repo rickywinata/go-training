@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/rickywinata/go-training/catalog5/internal/database/model"
+	"github.com/rickywinata/go-training/catalog5/internal/catalog/model"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 

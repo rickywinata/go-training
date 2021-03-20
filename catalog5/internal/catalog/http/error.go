@@ -30,5 +30,5 @@ func err2code(err error) int {
 }
 
 type errorWrapper struct {
-	Error string
+	Error string `json:"error"`
 }
