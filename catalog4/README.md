@@ -39,12 +39,12 @@ These instructions assume that postgres is run & setup with `user=postgres` & `p
    migrate create -ext sql -dir internal/catalog/migrations -seq create_table_name
    ```
 
-1. Write the `CREATE TABLE` query in the migration file.
+1. Write the `CREATE TABLE` query in the `.up.sql` migration file.
 
 1. Run the migrations.
 
    ```
-   migrate -source file://internal/catalog/migrations -database "postgres://postgres:password@localhost:5432/catalog?sslmode=disable" u
+   migrate -source file://internal/catalog/migrations -database "postgres://postgres:password@localhost:5432/catalog?sslmode=disable" up
    ```
 
 1. Generate models with sqlboiler.
