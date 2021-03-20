@@ -2,10 +2,10 @@
 
 ## Installing project dependencies
 
-- Install goose.
+- Install golang-migrate.
 
 ```
-go get -u github.com/pressly/goose/cmd/goose
+https://github.com/golang-migrate/migrate/blob/master/cmd/migrate/README.md#installation
 ```
 
 - Install sqlboiler v4.
@@ -22,7 +22,7 @@ These instructions assume that postgres is run & setup with `user=postgres` & `p
 1. Run the migrations
 
    ```
-   goose -dir ./internal/catalog/migrations postgres "user=postgres password=password dbname=catalog sslmode=disable" up
+   migrate -source file://internal/catalog/migrations -database "postgres://postgres:password@localhost:5432/catalog?sslmode=disable" up
    ```
 
 1. Run `main.go`
@@ -36,7 +36,7 @@ These instructions assume that postgres is run & setup with `user=postgres` & `p
 1. Create a migration file.
 
    ```
-   goose -dir ./internal/catalog/migrations create create_table_name_of_table sql
+   migrate create -ext sql -dir internal/catalog/migrations -seq create_table_name
    ```
 
 1. Write the `CREATE TABLE` query in the migration file.
@@ -44,7 +44,7 @@ These instructions assume that postgres is run & setup with `user=postgres` & `p
 1. Run the migrations.
 
    ```
-   goose -dir ./internal/catalog/migrations postgres "user=postgres password=password dbname=catalog sslmode=disable" up
+   migrate -source file://internal/catalog/migrations -database "postgres://postgres:password@localhost:5432/catalog?sslmode=disable" u
    ```
 
 1. Generate models with sqlboiler.
