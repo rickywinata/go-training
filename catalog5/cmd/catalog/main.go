@@ -9,7 +9,6 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/rickywinata/go-training/catalog5/internal/catalog"
 	cataloghttp "github.com/rickywinata/go-training/catalog5/internal/catalog/http"
-	"github.com/rickywinata/go-training/catalog5/internal/catalog/view"
 )
 
 func main() {
@@ -19,12 +18,11 @@ func main() {
 	}
 	defer db.Close()
 
-	catalogsvc := catalog.NewService(db)
-	productView := view.NewProductView(db)
+	catalogSvc := catalog.NewService(db)
 
 	r := chi.NewRouter()
-	r.Post("/products", cataloghttp.CreateProduct(catalogsvc).ServeHTTP)
-	r.Get("/products/{product_name}", cataloghttp.GetProduct(productView).ServeHTTP)
+	r.Post("/products", cataloghttp.CreateProduct(catalogSvc).ServeHTTP)
+	r.Get("/products/{product_name}", cataloghttp.GetProduct(catalogSvc).ServeHTTP)
 
 	log.Println("Listening on :8080 ...")
 	http.ListenAndServe(":8080", r)

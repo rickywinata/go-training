@@ -9,20 +9,18 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/rickywinata/go-training/catalog4/internal/catalog"
 	"github.com/rickywinata/go-training/catalog4/internal/catalog/endpoint"
-	"github.com/rickywinata/go-training/catalog4/internal/catalog/view"
 )
 
-// GetProduct creates http handler.
-func GetProduct(productView view.ProductView) http.Handler {
+func GetProduct(svc catalog.Service) http.Handler {
 	return httptransport.NewServer(
 		// Endpoint.
-		endpoint.GetProduct(productView),
+		endpoint.GetProduct(svc),
 
 		// Decoder.
 		func(_ context.Context, r *http.Request) (interface{}, error) {
-			var qry view.GetProductQuery
-			qry.Name = chi.URLParam(r, "product_name")
-			return &qry, nil
+			var input catalog.GetProductInput
+			input.Name = chi.URLParam(r, "product_name")
+			return &input, nil
 		},
 
 		// Encoder.
@@ -30,7 +28,6 @@ func GetProduct(productView view.ProductView) http.Handler {
 	)
 }
 
-// CreateProduct creates http handler.
 func CreateProduct(svc catalog.Service) http.Handler {
 	return httptransport.NewServer(
 		// Endpoint.

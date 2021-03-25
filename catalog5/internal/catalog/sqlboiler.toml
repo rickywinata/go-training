@@ -1,4 +1,4 @@
-output   = "./model"
+output   = "./database/model"
 pkgname  = "model"
 wipe     = true
 
