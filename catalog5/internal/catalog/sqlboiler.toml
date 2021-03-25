@@ -9,4 +9,4 @@ port   = 5432
 user   = "postgres"
 pass   = "password"
 sslmode = "disable"
-blacklist = ["goose_db_version"]
+blacklist = ["schema_migrations"]
