@@ -36,7 +36,7 @@ These instructions assume that postgres is run & setup with `user=postgres` & `p
 1. Create a migration file.
 
    ```
-   migrate create -ext sql -dir internal/catalog/migrations -seq create_table_name
+   migrate create -ext sql -dir internal/catalog/database/migrations -seq create_table_name
    ```
 
 1. Write the `CREATE TABLE` query in the `.up.sql` migration file.
