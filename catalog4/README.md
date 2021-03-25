@@ -22,7 +22,7 @@ These instructions assume that postgres is run & setup with `user=postgres` & `p
 1. Run the migrations
 
    ```
-   migrate -source file://internal/catalog/migrations -database "postgres://postgres:password@localhost:5432/catalog?sslmode=disable" up
+   migrate -source file://internal/catalog/database/migrations -database "postgres://postgres:password@localhost:5432/catalog?sslmode=disable" up
    ```
 
 1. Run `main.go`
@@ -44,7 +44,7 @@ These instructions assume that postgres is run & setup with `user=postgres` & `p
 1. Run the migrations.
 
    ```
-   migrate -source file://internal/catalog/migrations -database "postgres://postgres:password@localhost:5432/catalog?sslmode=disable" up
+   migrate -source file://internal/catalog/database/migrations -database "postgres://postgres:password@localhost:5432/catalog?sslmode=disable" up
    ```
 
 1. Generate models with sqlboiler.
