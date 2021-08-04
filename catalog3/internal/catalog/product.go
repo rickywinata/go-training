@@ -2,43 +2,94 @@ package catalog
 
 import (
 	"context"
+	"errors"
 
-	"github.com/rickywinata/go-training/catalog3/internal/catalog/model"
+	"github.com/Masterminds/squirrel"
+	"github.com/jmoiron/sqlx"
+	"github.com/rickywinata/go-training/catalog3/internal/database/querier"
+)
+
+var (
+	ErrNotFound = errors.New("product is not found")
 )
 
 type (
-	// CreateProductInput represents the input for creating a product.
 	CreateProductInput struct {
 		Name  string `json:"name"`
-		Price int    `json:"price"`
+		Price int64  `json:"price"`
+	}
+
+	CreateProductOutput struct {
+		*ProductView
+	}
+
+	GetProductInput struct {
+		Name string `json:"name"`
+	}
+
+	GetProductOutput struct {
+		*ProductView
 	}
 )
 
-// Service is an interface for catalog use cases.
+type ProductView struct {
+	Name  string `json:"name" validate:"max=5"`
+	Price int64  `json:"price"`
+}
+
 type Service interface {
-	CreateProduct(ctx context.Context, input *CreateProductInput) (*model.Product, error)
+	CreateProduct(ctx context.Context, input *CreateProductInput) (*CreateProductOutput, error)
+	GetProduct(ctx context.Context, input *GetProductInput) (*GetProductOutput, error)
 }
 
 type service struct {
-	productRepo model.Repository
+	db *sqlx.DB
+	q  querier.Querier
+	sb squirrel.StatementBuilderType
 }
 
-// NewService creates a new product service.
-func NewService(productRepo1 model.Repository) Service {
+func NewService(db *sqlx.DB) Service {
 	return &service{
-		productRepo: productRepo1,
+		db: db,
+		q:  querier.New(db),
+		sb: squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar),
 	}
 }
 
-func (s *service) CreateProduct(ctx context.Context, input *CreateProductInput) (*model.Product, error) {
-	p := &model.Product{
+func (s *service) CreateProduct(ctx context.Context, input *CreateProductInput) (*CreateProductOutput, error) {
+	p, err := s.q.InsertProduct(ctx, querier.InsertProductParams{
 		Name:  input.Name,
 		Price: input.Price,
-	}
-
-	if err := s.productRepo.Insert(ctx, p); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
 
-	return p, nil
+	return &CreateProductOutput{
+		&ProductView{
+			Name:  p.Name,
+			Price: p.Price,
+		},
+	}, nil
+}
+
+func (s *service) GetProduct(ctx context.Context, input *GetProductInput) (*GetProductOutput, error) {
+	q := s.sb.Select("name", "price").
+		From("product").
+		Where(squirrel.Eq{"name": input.Name})
+		
+	sql, args, err := q.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var res ProductView
+	err = s.db.Get(&res, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &GetProductOutput{
+		ProductView: &res,
+	}, err
 }

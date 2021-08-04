@@ -27,13 +27,13 @@ GET http://localhost:8080/greet HTTP/1.1
 POST http://localhost:8080/products HTTP/1.1
 
 {
-    "name": "test",
+    "name": "test3",
     "price": 15000
 }
 
 ###
 
-GET http://localhost:8080/products/a HTTP/1.1
+GET http://localhost:8080/products/test2 HTTP/1.1
 
 #
 #

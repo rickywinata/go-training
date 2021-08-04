@@ -2,41 +2,67 @@ package main
 
 import (
 	"context"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/rickywinata/go-training/catalog2/querier"
 )
 
 type (
-	// CreateProductInput represents the input for creating a product.
 	CreateProductInput struct {
 		Name  string `json:"name"`
-		Price int    `json:"price"`
+		Price int64  `json:"price"`
+	}
+
+	GetProductInput struct {
+		Name string `json:"name"`
 	}
 )
 
-// ProductService is an interface for product operations.
+type ProductView struct {
+	Name  string `json:"name" validate:"max=5"`
+	Price int64  `json:"price"`
+}
+
 type ProductService interface {
-	CreateProduct(ctx context.Context, input *CreateProductInput) (*Product, error)
+	CreateProduct(ctx context.Context, input *CreateProductInput) (*ProductView, error)
+	GetProduct(ctx context.Context, input *GetProductInput) (*ProductView, error)
 }
 
 type productService struct {
-	productRepo ProductRepository
+	db *sqlx.DB
+	q  querier.Querier
 }
 
-// NewProductService creates a new product service.
-func NewProductService(productRepo1 ProductRepository) ProductService {
+func NewProductService(db *sqlx.DB) ProductService {
 	return &productService{
-		productRepo: productRepo1,
+		db: db,
+		q:  querier.New(db),
 	}
 }
 
-func (s *productService) CreateProduct(ctx context.Context, input *CreateProductInput) (*Product, error) {
-	product := &Product{
+func (s *productService) CreateProduct(ctx context.Context, input *CreateProductInput) (*ProductView, error) {
+	p, err := s.q.InsertProduct(ctx, querier.InsertProductParams{
 		Name:  input.Name,
 		Price: input.Price,
-	}
-
-	if err := s.productRepo.Insert(ctx, product); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
 
-	return product, nil
+	return &ProductView{
+		Name:  p.Name,
+		Price: p.Price,
+	}, nil
+}
+
+func (s *productService) GetProduct(ctx context.Context, input *GetProductInput) (*ProductView, error) {
+	p, err := s.q.FindProduct(ctx, input.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ProductView{
+		Name:  p.Name,
+		Price: p.Price,
+	}, err
 }

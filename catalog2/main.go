@@ -8,14 +8,18 @@ import (
 
 	"github.com/go-chi/chi"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
 func main() {
-	repo := &InmemProductRepository{
-		Data: []*Product{},
+	db, err := sqlx.Open("postgres", "dbname=catalog user=postgres password=password sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
 	}
-	svc := NewProductService(repo)
-	view := NewProductView(repo)
+	defer db.Close()
+
+	svc := NewProductService(db)
 
 	createProductHandler := httptransport.NewServer(
 		// Endpoint.
@@ -41,14 +45,14 @@ func main() {
 	getProductHandler := httptransport.NewServer(
 		// Endpoint.
 		func(ctx context.Context, request interface{}) (interface{}, error) {
-			qry := request.(*GetProductQuery)
-			product, err := view.GetProduct(ctx, qry)
+			qry := request.(*GetProductInput)
+			product, err := svc.GetProduct(ctx, qry)
 			return product, err
 		},
 
 		// Decoder.
 		func(_ context.Context, r *http.Request) (interface{}, error) {
-			var qry GetProductQuery
+			var qry GetProductInput
 			qry.Name = chi.URLParam(r, "product_name")
 			return &qry, nil
 		},
